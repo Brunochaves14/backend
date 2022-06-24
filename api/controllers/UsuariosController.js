@@ -26,22 +26,47 @@ class UsuariosController{
         }
     }
 
+    static async buscarUsuarioPorEmail(req, res) {
+        const { email } = req.params;
+
+        try {
+            const usuario = await database.Usuarios.findOne({
+                where: {
+                    email: email
+                }
+            })
+            return res.status(200).json(usuario)
+        } catch (error) {
+            return res.status(500).json(error.message)
+        }
+    }
+
     static async criaUsuario(req, res) {
         const {email, senha} = req.body
         
-        
+        let user = database.Usuarios.findOne({
+            where: {
+                email: email
+            }
+        })
+
+        console.log(!!user)
         try{
             const hash = await bcryptjs.hash(senha, 10)
             const novoUsuarioCriado = await database.Usuarios.create({email, senha: hash})
             return res.status(200).send(novoUsuarioCriado)
         } catch(error){
-            return res.status(500).json(error.message)
+            return res.status(500).json(error.message)   
         }
     }
 
     static async atualizaUsuario(req, res) {
         const { id } = req.params
         const novasInfos = req.body
+        if (novasInfos.senha) {
+            let hash = await bcryptjs.hash(novasInfos.senha, 10);
+            novasInfos.senha = hash;
+        }
         try {
             await database.Usuarios.update(novasInfos, {
                 where: { id: Number(id) }
@@ -58,10 +83,14 @@ class UsuariosController{
     static async apagaUsuario(req, res) {
         const { id } = req.params
 
+        let user = await database.Usuarios.findOne({
+            where: {
+                id: Number(id)
+            }
+        })
+
         try {
-            await database.Usuario.destroy({
-                where: { id: Number(id) }
-            })
+            await user.destroy();
             return res.status(200).json({ mensagem: `O registro ${id}, foi deletado!` })
         } catch (error) {
             return res.status(500).json(error.message)

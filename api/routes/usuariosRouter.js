@@ -7,6 +7,7 @@ const router = Router()
 
 router.get('/usuario', UsuariosController.pegartodasOsUsuarios)
 router.get('/usuario/:id', UsuariosController.pegaUmUsuario)
+router.get('/usuario-email/:email', UsuariosController.buscarUsuarioPorEmail)
 router.post('/usuario', UsuariosController.criaUsuario)
 router.put('/usuario/:id', UsuariosController.atualizaUsuario)
 router.delete('/usuario/:id', UsuariosController.apagaUsuario)
